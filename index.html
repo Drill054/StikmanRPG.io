@@ -39,6 +39,20 @@
     touch-action: none;
   }
   .empty { background: transparent; }
+
+  #dialog {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px 20px;
+    background: rgba(0,0,0,0.7);
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 16px;
+    border-radius: 10px;
+    display: none;
+  }
 </style>
 </head>
 <body>
@@ -52,6 +66,8 @@
   <div class="btn" id="down">↓</div>
   <div class="btn" id="right">→</div>
 </div>
+
+<div id="dialog">Hello! Aku NPC!</div>
 
 <script>
 const canvas = document.getElementById('gameCanvas');
@@ -72,6 +88,9 @@ const map = [
 
 const player = { x: 1, y: 1, color: 'red' };
 
+// Tambahkan NPC
+const npc = { x: 5, y: 3, color: 'blue' };
+
 // Tombol sentuh
 const keys = { up:false, down:false, left:false, right:false };
 ['up','down','left','right'].forEach(dir => {
@@ -79,6 +98,8 @@ const keys = { up:false, down:false, left:false, right:false };
   btn.addEventListener('touchstart', ()=>{ keys[dir]=true; });
   btn.addEventListener('touchend', ()=>{ keys[dir]=false; });
 });
+
+const dialog = document.getElementById('dialog');
 
 function drawMap() {
   for(let y=0; y<map.length; y++){
@@ -94,6 +115,11 @@ function drawPlayer() {
   ctx.fillRect(player.x*tileSize, player.y*tileSize, tileSize, tileSize);
 }
 
+function drawNPC() {
+  ctx.fillStyle = npc.color;
+  ctx.fillRect(npc.x*tileSize, npc.y*tileSize, tileSize, tileSize);
+}
+
 function movePlayer() {
   if(keys.up && map[player.y-1]?.[player.x] === 0) player.y--;
   if(keys.down && map[player.y+1]?.[player.x] === 0) player.y++;
@@ -101,11 +127,21 @@ function movePlayer() {
   if(keys.right && map[player.y]?.[player.x+1] === 0) player.x++;
 }
 
+function checkNPC() {
+  if(player.x === npc.x && player.y === npc.y){
+    dialog.style.display = 'block';
+  } else {
+    dialog.style.display = 'none';
+  }
+}
+
 function gameLoop() {
   ctx.clearRect(0,0,canvas.width,canvas.height);
   drawMap();
+  drawNPC();
   movePlayer();
   drawPlayer();
+  checkNPC();
   requestAnimationFrame(gameLoop);
 }
 
